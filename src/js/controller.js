@@ -126,6 +126,7 @@ const renderIng = function (fun) {
   });
   return arr;
 };
+
 ['load', 'hashchange'].map(val => {
   window.addEventListener(val, rendor);
 });
