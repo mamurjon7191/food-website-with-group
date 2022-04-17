@@ -1,5 +1,6 @@
 import icon from '../../img/icons.svg';
 class RecipeView {
+  #errorMessage = `Sizning malumotingiz topildi iltimos qaytadan urinib koring`;
   #parentElement = document.querySelector('.recipe');
   #data;
   render(data) {
@@ -7,6 +8,11 @@ class RecipeView {
     if (!data) return;
     this.#clearHTML();
     this.#generatorHtml(this.#data);
+  }
+  addHandleEvent(handle) {
+    ['load', 'hashchange'].map(val => {
+      window.addEventListener(val, handle);
+    });
   }
   #generatorHtml(data) {
     let html = `<figure class="recipe__fig">
@@ -28,16 +34,22 @@ class RecipeView {
         <svg class="recipe__info-icon">
           <use href="${icon}#icon-users"></use>
         </svg>
-        <span class="recipe__info-data recipe__info-data--people">4</span>
+        <span class="recipe__info-data recipe__info-data--people">${
+          data.servings
+        }</span>
         <span class="recipe__info-text">servings</span>
     
         <div class="recipe__info-buttons">
-          <button class="btn--tiny btn--increase-servings">
+          <button class="btn--tiny btn--increase-servings" id="${
+            data.servings - 1
+          }">
             <svg>
               <use href="${icon}#icon-minus-circle"></use>
             </svg>
           </button>
-          <button class="btn--tiny btn--increase-servings">
+          <button class="btn--tiny btn--increase-servings" id="${
+            data.servings + 1
+          }"/>
             <svg>
               <use href="${icon}#icon-plus-circle"></use>
             </svg>
@@ -52,7 +64,9 @@ class RecipeView {
       </div>
       <button class="btn--round">
         <svg class="">
-          <use href="${icon}#icon-bookmark-fill"></use>
+          <use href="${icon}#icon-bookmark${
+      data.bookmarked ? '-fill' : ''
+    }"></use>
         </svg>
       </button>
     </div>
@@ -89,7 +103,7 @@ class RecipeView {
       return `<li class="recipe__ingredient">
       <svg class="recipe__icon">
         <use href="${icon}#icon-check"></use>
-      </svg>
+      </svg> 
       <div class="recipe__quantity">${val.quantity}</div>
       <div class="recipe__description">
         <span class="recipe__unit">${val.unit}</span>
@@ -110,6 +124,37 @@ class RecipeView {
   </div> `;
     this.#clearHTML();
     this.#parentElement.insertAdjacentHTML('afterbegin', html);
+  }
+  errorNotify() {
+    let html = `<div class="error">
+          <div>
+            <svg>
+              <use href="src/img/icons.svg#icon-alert-triangle"></use>
+            </svg>
+          </div>
+          <p>${this.#errorMessage}</p>
+        </div>`;
+    this.#clearHTML();
+    this.#parentElement.insertAdjacentHTML('afterbegin', html);
+  }
+  addHandle(handle) {
+    this.#parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--tiny');
+      if (!btn) return;
+      const servingsNumber = +btn.getAttribute('id');
+      console.log(servingsNumber);
+      if (servingsNumber > 0) {
+        handle(servingsNumber);
+      } else {
+        return;
+      }
+    });
+  }
+  addHandleBookmark(handle) {
+    this.#parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--round');
+      handle();
+    });
   }
 }
 
